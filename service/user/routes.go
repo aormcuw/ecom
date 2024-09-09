@@ -5,11 +5,11 @@ import "github.com/gin-gonic/gin"
 type Handler struct {
 }
 
-func NewHanler() *Handler {
+func NewHandler() *Handler {
 	return &Handler{}
 }
 
-func (h *Handler) RegisterRoutes(r *gin.Engine) {
+func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.POST("/login", h.HandleLogin)
 	r.POST("/register", h.HandleRegister)
 }
