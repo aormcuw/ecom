@@ -1,12 +1,17 @@
 package user
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/aormcuw/ecom/service/auth"
+	"github.com/aormcuw/ecom/types"
+	"github.com/gin-gonic/gin"
+)
 
 type Handler struct {
+	store types.UserStore
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(store types.UserStore) *Handler {
+	return &Handler{store: store}
 }
 
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
@@ -20,6 +25,39 @@ func (h *Handler) HandleLogin(c *gin.Context) {
 }
 
 func (h *Handler) HandleRegister(c *gin.Context) {
-	// implement registration logic here
+	var payload types.RegisterUserPayload //+
+
+	if err := c.ShouldBindJSON(&payload); err != nil { //+
+		c.JSON(400, gin.H{"error": err.Error()}) //+
+		return                                   //+
+	} //+
+
+	// check if the user is already registered
+	_, err := h.store.GetUserByEmail(payload.Email)
+	if err == nil {
+		c.JSON(400, gin.H{"error": "user already exists"})
+		return
+	}
+	//+
+	// Hash password before storing
+	hashedPassword, err := auth.HashedPassword(payload.Password)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	//+
+	// if not, create a new user in the database
+	err = h.store.CreateUser(types.User{
+		FirstName: payload.FirstName,
+		Lastname:  payload.Lastname,
+		Email:     payload.Email,
+		Password:  hashedPassword,
+	})
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	//+
+	// if everything is successful, return a success message
 	c.JSON(200, gin.H{"message": "registration successful"})
 }

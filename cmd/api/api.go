@@ -27,7 +27,8 @@ func (s *APIServer) Run() error {
 	subrouter.GET("/users", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "GET /api/v1/users"})
 	})
-	userHandler := user.NewHandler()
+	userStore := user.NewStore(s.db) // Initialize user store with the provided DB connection
+	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on ", s.addr)
