@@ -15,11 +15,11 @@ func TestUserServices(t *testing.T) {
 	userStore := &mockUserStore{}
 	handler := NewHandler(userStore)
 
-	t.Run("should fail if user is invalid", func(t *testing.T) {
+	t.Run("should fail if email is invalid", func(t *testing.T) {
 		payload := types.RegisterUserPayload{
 			FirstName: "John",
 			Lastname:  "Doe",
-			Email:     "example@example.com",
+			Email:     "invalid-email", // Invalid email
 			Password:  "password123",
 		}
 
@@ -30,14 +30,17 @@ func TestUserServices(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		req.Header.Set("Content-Type", "application/json")
+
 		rr := httptest.NewRecorder()
 		r := gin.Default()
 
 		r.POST("/api/v1/register", handler.HandleRegister)
 		r.ServeHTTP(rr, req)
 
-		if rr.Code != 200 {
-			t.Errorf("expected 200 response, got %d", rr.Code)
+		// Expecting 400 response code for invalid email
+		if rr.Code != 400 {
+			t.Errorf("expected 400 response, got %d", rr.Code)
 		}
 	})
 }
