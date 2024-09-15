@@ -4,7 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
+
+var Validate = validator.New()
 
 func CheckAndBind(c *gin.Context, payload any) {
 	if c.Request.Body == nil || c.Request.ContentLength == 0 {

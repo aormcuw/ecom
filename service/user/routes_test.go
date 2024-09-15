@@ -3,6 +3,7 @@ package user
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,13 +20,13 @@ func TestUserServices(t *testing.T) {
 		payload := types.RegisterUserPayload{
 			FirstName: "John",
 			Lastname:  "Doe",
-			Email:     "invalid-email", // Invalid email
+			Email:     "emailmail", // Invalid email
 			Password:  "password123",
 		}
 
 		marshalled, _ := json.Marshal(payload)
 
-		req, err := http.NewRequest(http.MethodPost, "/api/v1/register", bytes.NewBuffer(marshalled))
+		req, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(marshalled))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -35,7 +36,7 @@ func TestUserServices(t *testing.T) {
 		rr := httptest.NewRecorder()
 		r := gin.Default()
 
-		r.POST("/api/v1/register", handler.HandleRegister)
+		r.POST("/register", handler.HandleRegister)
 		r.ServeHTTP(rr, req)
 
 		// Expecting 400 response code for invalid email
@@ -43,12 +44,39 @@ func TestUserServices(t *testing.T) {
 			t.Errorf("expected 400 response, got %d", rr.Code)
 		}
 	})
+	t.Run("should correctly register the user", func(t *testing.T) {
+		payload := types.RegisterUserPayload{
+			FirstName: "John",
+			Lastname:  "Doe",
+			Email:     "john.doe@example.com",
+			Password:  "password123",
+		}
+		marshalled, _ := json.Marshal(payload)
+
+		req, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(marshalled))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+		r := gin.Default()
+
+		r.POST("/register", handler.HandleRegister)
+		r.ServeHTTP(rr, req)
+
+		// Expecting 200 response code for invalid email
+		if rr.Code != 200 {
+			t.Errorf("expected 200 response, got %d", rr.Code)
+		}
+	})
 }
 
 type mockUserStore struct{}
 
 func (m *mockUserStore) GetUserByEmail(email string) (*types.User, error) {
-	return nil, nil
+	return nil, fmt.Errorf("user %s not found", email)
 }
 
 func (m *mockUserStore) GetUserById(id int) (*types.User, error) {
