@@ -6,7 +6,6 @@ import (
 	"github.com/aormcuw/ecom/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"gorm.io/gorm"
 )
 
 type Handler struct {
@@ -53,39 +52,29 @@ func (h *Handler) HandleRegister(c *gin.Context) {
 	// check if the user is already registered
 	_, err := h.store.GetUserByEmail(payload.Email)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			// Proceed with registration as the user does not exist
-			//+
-			// Hash password before storing
-			hashedPassword, err := auth.HashedPassword(payload.Password)
-			if err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
-				return
-			}
-			//+
-			// if not, create a new user in the database
-			err = h.store.CreateUser(types.User{
-				FirstName: payload.FirstName,
-				LastName:  payload.LastName,
-				Email:     payload.Email,
-				Password:  hashedPassword,
-			})
-			if err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
-				return
-			}
-			//+
-			// if everything is successful, return a success message
-			c.JSON(200, gin.H{"message": "registration successful"})
-		} else {
-			// Handle other database-related errors
-			c.JSON(500, gin.H{"error": "something went wrong, please try again"})
-			return
-		}
-	} else {
-		// User already exists
-		c.JSON(400, gin.H{"error": "user already exists"})
+		c.JSON(400, gin.H{"error": "User already exists"})
 		return
 	}
+	hashedPassword, err := auth.HashedPassword(payload.Password)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"message": "registration successful"})
+		return
+	}
+	//+
+	// if not, create a new user in the database
+	err = h.store.CreateUser(types.User{
+		FirstName: payload.FirstName,
+		LastName:  payload.LastName,
+		Email:     payload.Email,
+		Password:  hashedPassword,
+	})
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	//+
+	// if everything is successful, return a success message
+	c.JSON(200, gin.H{"message": "registration successful"})
 
 }

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/aormcuw/ecom/types"
@@ -20,10 +21,10 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 
 	// Use GORM to find the user by email
 	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil // Return a custom error message if not found
 		}
-		return nil, nil // Return other errors
+		return nil, err // Return any other error
 	}
 
 	return &user, nil // Return the user on success
@@ -44,8 +45,10 @@ func (s *Store) GetUserById(id int) (*types.User, error) {
 }
 
 func (s *Store) CreateUser(user types.User) error {
-	err := s.db.Exec("INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4)", user.FirstName, user.LastName, user.Email, user.Password)
-	if err != nil {
+	if err := s.db.Create(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return fmt.Errorf("user with email %s already exists", user.Email)
+		}
 		return fmt.Errorf("error creating user: %v", err)
 	}
 	return nil
