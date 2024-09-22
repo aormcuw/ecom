@@ -26,6 +26,6 @@ func initConfig() Config {
 	return Config{
 		PublicHost: getEnv("PUBLIC_HOST", "http://localhost"),
 		Port:       getEnv("PORT", "8080"),
-		DBURL:      getEnv("DATABASE_URL", "postgresql://postgres:ClazKycDIPExRyqgjCddHVwDFnMbsimv@autorack.proxy.rlwy.net:44492/railway"),
+		DBURL:      getEnv("DATABASE_URL", "postgresql://postgres:@localhost:5432/ecom?sslmode=disable"),
 	}
 }

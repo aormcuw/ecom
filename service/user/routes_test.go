@@ -19,7 +19,7 @@ func TestUserServices(t *testing.T) {
 	t.Run("should fail if email is invalid", func(t *testing.T) {
 		payload := types.RegisterUserPayload{
 			FirstName: "John",
-			Lastname:  "Doe",
+			LastName:  "Doe",
 			Email:     "emailmail", // Invalid email
 			Password:  "password123",
 		}
@@ -47,7 +47,7 @@ func TestUserServices(t *testing.T) {
 	t.Run("should correctly register the user", func(t *testing.T) {
 		payload := types.RegisterUserPayload{
 			FirstName: "John",
-			Lastname:  "Doe",
+			LastName:  "Doe",
 			Email:     "john.doe@example.com",
 			Password:  "password123",
 		}
