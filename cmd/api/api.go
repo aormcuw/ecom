@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/aormcuw/ecom/service/products"
 	"github.com/aormcuw/ecom/service/user"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -30,6 +31,10 @@ func (s *APIServer) Run() error {
 	userStore := user.NewStore(s.db) // Initialize user store with the provided DB connection
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subrouter)
+
+	productStore := products.NewStore(s.db) // Initialize product store with the
+	productHandler := products.NewHandler(productStore)
+	productHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on ", s.addr)
 

@@ -10,10 +10,22 @@ type User struct {
 	Password  string `json:"password"`
 }
 
+type Product struct {
+	*gorm.Model
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Image       string  `json:"image"`
+	Price       float64 `json:"price"`
+	Quantity    int     `json:"quantity"`
+}
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
 	GetUserById(id int) (*User, error)
 	CreateUser(User) error
+}
+
+type ProductStore interface {
+	GetProducts() ([]Product, error)
 }
 
 type RegisterUserPayload struct {
@@ -22,4 +34,9 @@ type RegisterUserPayload struct {
 	LastName  string `json:"last_name" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=2,max=128"`
+}
+
+type LoginUserPayload struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
 }
