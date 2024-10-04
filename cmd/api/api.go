@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/aormcuw/ecom/service/cart"
+	"github.com/aormcuw/ecom/service/order"
 	"github.com/aormcuw/ecom/service/products"
 	"github.com/aormcuw/ecom/service/user"
 	"github.com/gin-gonic/gin"
@@ -35,6 +37,11 @@ func (s *APIServer) Run() error {
 	productStore := products.NewStore(s.db) // Initialize product store with the
 	productHandler := products.NewHandler(productStore)
 	productHandler.RegisterRoutes(subrouter)
+
+	orderStore := order.NewStore(s.db)
+
+	cartHandler := cart.NewHandler(orderStore, productStore, userStore)
+	cartHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on ", s.addr)
 

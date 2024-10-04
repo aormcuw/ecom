@@ -30,7 +30,7 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 	return &user, nil // Return an error if the email is found
 }
 
-func (s *Store) GetUserById(id int) (*types.User, error) {
+func (s *Store) GetUserByIds(id int) (*types.User, error) {
 	var user types.User
 
 	// Use GORM to find the user by id
